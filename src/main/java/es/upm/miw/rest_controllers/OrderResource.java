@@ -1,17 +1,15 @@
 package es.upm.miw.rest_controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,8 +17,6 @@ import es.upm.miw.business_controllers.OrderController;
 import es.upm.miw.dtos.OrderArticleDto;
 import es.upm.miw.dtos.OrderDto;
 import es.upm.miw.dtos.OrderSearchDto;
-import es.upm.miw.dtos.OrderSearchInputDto;
-import es.upm.miw.exceptions.BadRequestException;
 
 @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER') or hasRole('OPERATOR')")
 @RestController
@@ -43,28 +39,9 @@ public class OrderResource {
 		return this.orderController.readAll();
 	}
 
-	/*@PostMapping(value = CLOSE)
-	public List<OrderDto> closeOrder(@Valid @RequestBody OrderDto orderDto) {
-		System.out.println("Order: " + orderDto);
-		List<OrderDto> closedOrder = new ArrayList<>();
-		if (orderDto.getOrderLines() == null) {
-			throw new BadRequestException("orderLine is empty");
-		} else {
-			closedOrder.add(new OrderDto(this.orderController.closeOrder(orderDto.getId(), orderDto.getOrderLines())));
-		}
-		return closedOrder;
-	}
-	
-	@PostMapping(value = SEARCH)
-	public List<OrderSearchDto> findByAttributesLike(@Valid @RequestBody OrderSearchInputDto orderSearchInputDto) {
-		String descriptionOrders = orderSearchInputDto.getDescriptionOrders();
-		String descriptionArticles = orderSearchInputDto.getDescriptionArticles();
-		Boolean onlyClosingDate = orderSearchInputDto.isOnlyClosingDate();
-		return this.orderController.searchOrder(descriptionOrders, descriptionArticles, onlyClosingDate);
-	}
-
 	@PostMapping()
-	public OrderDto createOrder(@Valid @RequestBody OrderArticleDto[] articleDto) {
+	public OrderDto createOrder(@Valid @RequestBody OrderArticleDto[] articleDto,
+			@RequestHeader("Authorization") String token) {
 		int size = articleDto.length;
 		String[] articlesId = new String[size];
 		Integer[] requiredAmount = new Integer[size];
@@ -77,22 +54,36 @@ public class OrderResource {
 			idProvider = dto.getProviderId();
 			i++;
 		}
-		return this.orderController.create(desc, idProvider, articlesId, requiredAmount);
+		return this.orderController.create(desc, idProvider, articlesId, requiredAmount, token);
 	}
 
-	@GetMapping(value = ID)
-	public List<OrderSearchDto> read(@PathVariable String id) {
-		return this.orderController.findByDescription(id);
-	}
-
-	@PostMapping(value = ARTICLE)
-	public List<OrderArticleDto> findById(@Valid @RequestBody OrderDto orderDto) {
-		System.out.println("find By id: " + orderDto.getId());
-		return this.orderController.findById(orderDto.getId());
-	}
-
-	@DeleteMapping(value = ORDER_ID)
-	public void delete(@PathVariable String idOrder) {
-		this.orderController.delete(idOrder);
-	}*/
+	/*
+	 * @PostMapping(value = CLOSE) public List<OrderDto>
+	 * closeOrder(@Valid @RequestBody OrderDto orderDto) {
+	 * System.out.println("Order: " + orderDto); List<OrderDto> closedOrder = new
+	 * ArrayList<>(); if (orderDto.getOrderLines() == null) { throw new
+	 * BadRequestException("orderLine is empty"); } else { closedOrder.add(new
+	 * OrderDto(this.orderController.closeOrder(orderDto.getId(),
+	 * orderDto.getOrderLines()))); } return closedOrder; }
+	 * 
+	 * /*@PostMapping(value = SEARCH) public List<OrderSearchDto>
+	 * findByAttributesLike(@Valid @RequestBody OrderSearchInputDto
+	 * orderSearchInputDto) { String descriptionOrders =
+	 * orderSearchInputDto.getDescriptionOrders(); String descriptionArticles =
+	 * orderSearchInputDto.getDescriptionArticles(); Boolean onlyClosingDate =
+	 * orderSearchInputDto.isOnlyClosingDate(); return
+	 * this.orderController.searchOrder(descriptionOrders, descriptionArticles,
+	 * onlyClosingDate); }
+	 * 
+	 * @GetMapping(value = ID) public List<OrderSearchDto> read(@PathVariable String
+	 * id) { return this.orderController.findByDescription(id); }
+	 * 
+	 * @PostMapping(value = ARTICLE) public List<OrderArticleDto>
+	 * findById(@Valid @RequestBody OrderDto orderDto) {
+	 * System.out.println("find By id: " + orderDto.getId()); return
+	 * this.orderController.findById(orderDto.getId()); }
+	 * 
+	 * @DeleteMapping(value = ORDER_ID) public void delete(@PathVariable String
+	 * idOrder) { this.orderController.delete(idOrder); }
+	 */
 }
