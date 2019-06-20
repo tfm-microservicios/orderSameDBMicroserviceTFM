@@ -2,7 +2,6 @@ package es.upm.miw.business_controllers;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,9 +59,8 @@ public class OrderController {
 	}
 
 	public void delete(String id) {
-		Optional<Order> order = this.orderRepository.findById(id);
-		if (order.isPresent()) {
-			this.orderRepository.delete(order.get());
+		if (this.orderRepository.findById(id).isPresent()) {
+			this.orderRepository.deleteById(id);
 		}
 	}
 
