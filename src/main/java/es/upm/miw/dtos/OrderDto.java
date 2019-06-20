@@ -21,7 +21,7 @@ public class OrderDto {
 	private LocalDateTime openingDate;
 
 	private LocalDateTime closingDate;
-
+	
 	private OrderLine[] orderLines;
 
 	public OrderDto() {

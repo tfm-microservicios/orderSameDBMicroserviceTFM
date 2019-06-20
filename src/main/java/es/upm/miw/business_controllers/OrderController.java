@@ -45,17 +45,16 @@ public class OrderController {
 		return orderSearchDtos;
 	}
 
-	public OrderDto create(String descriptionOrder, String providerId, String[] idArticles, Integer[] requiredAmount,
-			String token) {
-		checkProviderId(providerId, token);
-		OrderLine[] orderLines = new OrderLine[idArticles.length];
-		for (int i = 0; i < idArticles.length; i++) {
-			if (checkArticleId(idArticles[i], token)) {
-				orderLines[i] = new OrderLine(idArticles[i], requiredAmount[i]);
-			}
+	public OrderDto create(OrderDto orderDto, String token) {
+		checkProviderId(orderDto.getProviderId(), token);
+
+		for (int i = 0; i < orderDto.getOrderLines().length; i++) {
+			OrderLine orderLine = orderDto.getOrderLines()[i];
+			checkArticleId(orderLine.getArticleId(), token);
 		}
 
-		Order order = new Order(descriptionOrder, providerId, orderLines);
+		Order order = new Order(orderDto.getDescription(), orderDto.getProviderId(), orderDto.getOrderLines());
+
 		this.orderRepository.save(order);
 		return new OrderDto(order);
 	}
@@ -68,10 +67,6 @@ public class OrderController {
 	}
 
 	private boolean checkProviderId(String providerId, String token) {
-		if (providerId == null || providerId == "") {
-			return false;
-		}
-
 		try {
 			return this.restService.setToken(token).restBuilder(new RestBuilder<Boolean>(providerMicroservice)).heroku()
 					.clazz(Boolean.class).path("/providers/" + providerId + "/validate").get().build();
@@ -81,10 +76,6 @@ public class OrderController {
 	}
 
 	private boolean checkArticleId(String articleId, String token) {
-		if (articleId == null || articleId == "") {
-			return false;
-		}
-
 		try {
 			return this.restService.setToken(token).restBuilder(new RestBuilder<Boolean>(articleMicroservice)).heroku()
 					.clazz(Boolean.class).path("/articles/" + articleId + "/validate").get().build();
